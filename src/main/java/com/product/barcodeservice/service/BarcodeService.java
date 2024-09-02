@@ -15,6 +15,7 @@ import java.util.UUID;
 public class BarcodeService {
 
     private final BarcodeRepo barcodeRepo;
+    String productUrl ="http://localhost:8081/api/Products";
 
     private Random random = new Random();
     UUID uuid = UUID.randomUUID();
@@ -39,6 +40,7 @@ public class BarcodeService {
         else return Optional.empty();
     }
 
+
     public Optional<Barcode> getBarcodeById(Long id) {
         return barcodeRepo.findById(id);
     }
@@ -47,18 +49,21 @@ public class BarcodeService {
         return barcodeRepo.findAll();
     }
 
-    public Barcode createBarcodeWithProduct(Long id){
+    public Barcode createBarcodeWithProduct(String productCode) {
         Barcode barcode = new Barcode();
-        barcode.setProductCode(generateRandomBarcode(9,0));
-        barcode.setCashregCode(generateRandomBarcode(4,0));
-        barcode.setScaleCode(generateRandomBarcode(8,0));
+        barcode.setProductCode(generateRandomBarcode(9,0,"yok"));
+        barcode.setCashregCode(generateRandomBarcode(4,0,"yok"));
+        barcode.setScaleCode(generateRandomBarcode(8,5,productCode));
         createBarcode(barcode);
         return barcode;
     }
-    private String generateRandomBarcode(int length,int startIndex)
+    private String generateRandomBarcode(int length,int startIndex,String productCode)
     {
         String barcodeLetter = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         StringBuilder barcode = new StringBuilder ();
+        if(startIndex == 5){
+            barcode.append(productCode);
+        }
         for(int i = startIndex; i < length; i++)
         {
             int index = random.nextInt(barcodeLetter.length());

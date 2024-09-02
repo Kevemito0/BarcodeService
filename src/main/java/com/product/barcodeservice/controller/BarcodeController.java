@@ -28,9 +28,9 @@ public class BarcodeController {
         return barcodeService.getAllBarcodes();
     }
 
-    @PostMapping("/create")
-    public Barcode createCategoryWithProduct(Long id){
-        return barcodeService.createBarcodeWithProduct(id);
+    @PostMapping("/create/{productCode}")
+    public Barcode createCategoryWithProduct(@PathVariable String productCode) {
+        return barcodeService.createBarcodeWithProduct(productCode);
     }
 
     @PostMapping
