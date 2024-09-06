@@ -3,7 +3,6 @@ package com.product.barcodeservice.service;
 import com.product.barcodeservice.model.Barcode;
 import com.product.barcodeservice.repo.BarcodeRepo;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,14 +14,27 @@ import java.util.UUID;
 public class BarcodeService {
 
     private final BarcodeRepo barcodeRepo;
-    String productUrl ="http://localhost:8081/api/Products";
+    /* //if we don't use requiredArgsConstructor we can DI like this
+    @Autowired
+            public BarcodeService(BarcodeRepo barcodeRepo) {
+        this.barcodeRepo = barcodeRepo;
+    }
+    */
 
     private Random random = new Random();
     UUID uuid = UUID.randomUUID();
 
     public Barcode createBarcode(Barcode category) {
-        Barcode savedCategory = barcodeRepo.save(category);
-        return savedCategory;
+        return barcodeRepo.save(category);
+    }
+    private boolean isScaleBarcodeExists(String scaleCode) {
+        return barcodeRepo.findAll().stream().anyMatch(barcode1 -> barcode1.getScaleCode().equals(scaleCode));
+    }
+    private boolean isCashregBarcodeCodeExists(String cashregCode) {
+        return barcodeRepo.findAll().stream().anyMatch(barcode1 -> barcode1.getScaleCode().equals(cashregCode));
+    }
+    private boolean isProductBarcodeExists(String productBarcode) {
+        return barcodeRepo.findAll().stream().anyMatch(barcode1 -> barcode1.getScaleCode().equals(productBarcode));
     }
     public void deleteBarcode(Long id) {
         barcodeRepo.deleteById(id);
@@ -51,8 +63,8 @@ public class BarcodeService {
 
     public Barcode createBarcodeWithProduct(String productCode) {
         Barcode barcode = new Barcode();
-        barcode.setProductCode(generateRandomBarcode(9,0,"yok"));
-        barcode.setCashregCode(generateRandomBarcode(4,0,"yok"));
+        barcode.setProductCode(generateRandomBarcode(9,0,""));
+        barcode.setCashregCode(generateRandomBarcode(4,0,""));
         barcode.setScaleCode(generateRandomBarcode(8,5,productCode));
         createBarcode(barcode);
         return barcode;
@@ -60,15 +72,17 @@ public class BarcodeService {
     private String generateRandomBarcode(int length,int startIndex,String productCode)
     {
         String barcodeLetter = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        StringBuilder barcode = new StringBuilder ();
-        if(startIndex == 5){
-            barcode.append(productCode);
-        }
-        for(int i = startIndex; i < length; i++)
-        {
-            int index = random.nextInt(barcodeLetter.length());
-            barcode.append(barcodeLetter.charAt(index));
-        }
+        StringBuilder barcode;
+        do {
+            barcode = new StringBuilder();
+            if (startIndex == 5) {
+                barcode.append(productCode);
+            }
+            for (int i = startIndex; i < length; i++) {
+                int index = random.nextInt(barcodeLetter.length());
+                barcode.append(barcodeLetter.charAt(index));
+            }
+        }   while (isScaleBarcodeExists(barcode.toString()) || isCashregBarcodeCodeExists(barcode.toString()) || isProductBarcodeExists(barcode.toString()));
         return barcode.toString();
     }
 }
