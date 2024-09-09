@@ -69,7 +69,7 @@ public class BarcodeService {
         createBarcode(barcode);
         return barcode;
     }
-    private String generateRandomBarcode(int length,int startIndex,String productCode)
+    public String generateRandomBarcode(int length,int startIndex,String productCode)
     {
         String barcodeLetter = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         StringBuilder barcode;
